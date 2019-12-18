@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    component: etcd
+    tier: control-plane
+  name: etcd
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - etcd
+    - --data-dir=/data/etcd
+    - --name=idevz-k8s
+    - --snapshot-count=10000
+    - --cert-file=/etc/kubernetes/pki/kubernetes.pem
+    - --key-file=/etc/kubernetes/pki/kubernetes-key.pem
+    - --peer-cert-file=/etc/kubernetes/pki/kubernetes.pem
+    - --peer-key-file=/etc/kubernetes/pki/kubernetes-key.pem
+    - --trusted-ca-file=/etc/kubernetes/pki/ca.pem
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/ca.pem
+    - --initial-advertise-peer-urls=https://{{ETCD_MASTER_IP}}:2380
+    - --listen-peer-urls=https://{{ETCD_MASTER_IP}}:2380
+    - --listen-client-urls=https://{{ETCD_MASTER_IP}}:2379,https://127.0.0.1:2379
+    - --advertise-client-urls=https://{{ETCD_MASTER_IP}}:2379
+    image: {{IMAGE}}
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      exec:
+        command:
+        - /bin/sh
+        - -ec
+        - ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 --cacert=/etc/kubernetes/pki/ca.pem --cert=/etc/kubernetes/pki/kubernetes.pem --key=/etc/kubernetes/pki/kubernetes-key.pem get foo
+      failureThreshold: 8
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    name: etcd
+    resources: {}
+    volumeMounts:
+    - mountPath: /data/etcd
+      name: etcd-data
+    - mountPath: /etc/kubernetes/pki
+      name: etcd-certs
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: {{K8S_START_ROOT}}/etc/kubernetes/pki
+    name: etcd-certs
+  - hostPath:
+      path: /data/etcd
+      type: DirectoryOrCreate
+    name: etcd-data
+status: {}

@@ -1,0 +1,11 @@
+/build-images/bins
+/build-images/run_path
+/k8s-run-path
+/prepare-pki/pki
+/kube-confs/configs
+docs/Documentation
+/kubelet
+*.DS_Store
+etcd-kv.json
+kube-env
+/etc

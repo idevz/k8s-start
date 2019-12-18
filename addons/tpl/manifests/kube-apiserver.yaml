@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - /kube-apiserver
+    - --v=4
+    # - --profiling ## default is true
+    - --insecure-port=0
+    - --proxy-client-cert-file=/etc/kubernetes/pki/kubernetes.pem
+    - --proxy-client-key-file=/etc/kubernetes/pki/kubernetes-key.pem
+    - --logtostderr=true
+    - --advertise-address={{K8S_API_SERVER_ADVERTISE_ADDRESS}}
+    - --etcd-servers=https://{{ETCD_MASTER_IP}}:2379
+    - --etcd-cafile=/etc/kubernetes/pki/ca.pem
+    - --etcd-certfile=/etc/kubernetes/pki/kubernetes.pem
+    - --etcd-keyfile=/etc/kubernetes/pki/kubernetes-key.pem
+    - --service-cluster-ip-range={{K8S_CLUSTER_IP_CIDR}}
+    - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota
+    - --apiserver-count=3
+    - --secure-port=6443
+    - --runtime-config=rbac.authorization.k8s.io/v1
+    - --kubelet-https=true
+    - --service-account-key-file=/etc/kubernetes/pki/ca-key.pem
+    - --event-ttl=1h
+    - --allow-privileged=true
+    - --authorization-mode=Node,RBAC
+    - --enable-bootstrap-token-auth=true
+    - --basic-auth-file=/etc/kubernetes/pki/basic-auth.csv
+    - --token-auth-file=/etc/kubernetes/pki/bootstrap-token.csv
+    - --service-node-port-range=30000-32767
+    - --tls-cert-file=/etc/kubernetes/pki/kubernetes.pem
+    - --tls-private-key-file=/etc/kubernetes/pki/kubernetes-key.pem
+    - --client-ca-file=/etc/kubernetes/pki/ca.pem
+    - --enable-swagger-ui=true
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+    - --anonymous-auth=false
+    - --requestheader-allowed-names=kubernetes
+    - --requestheader-client-ca-file=/etc/kubernetes/pki/kubernetes.pem
+    - --requestheader-extra-headers-prefix=X-Remote-Extra-
+    - --requestheader-group-headers=X-Remote-Group
+    - --requestheader-username-headers=X-Remote-User
+    - --kubelet-client-certificate=/etc/kubernetes/pki/admin.pem
+    - --kubelet-client-key=/etc/kubernetes/pki/admin-key.pem
+    image: {{IMAGE}}
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      tcpSocket:
+        port: 6443
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    name: kube-apiserver
+    resources:
+      requests:
+        cpu: 250m
+    volumeMounts:
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-cluster-critical
+  volumes:
+  - hostPath:
+      path: {{K8S_START_ROOT}}/etc/kubernetes/pki
+    name: k8s-certs
+status: {}

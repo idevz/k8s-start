@@ -62,7 +62,7 @@ data:
     .:53 {
         errors
         health
-        kubernetes k8s.idevz.org in-addr.arpa ip6.arpa {
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
             pods insecure
             upstream
             fallthrough in-addr.arpa ip6.arpa

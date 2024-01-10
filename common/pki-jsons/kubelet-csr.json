@@ -13,8 +13,7 @@
     "kubernetes.default",
     "kubernetes.default.svc",
     "kubernetes.default.svc.cluster",
-    "kubernetes.default.svc.cluster.local",
-    "kubernetes.default.svc.{{k8s_cluster_domain}}"
+    "kubernetes.default.svc.cluster.local"
   ],
   "key": {
     "algo": "rsa",

@@ -14,8 +14,11 @@ Docker 容器的方式（与进程启动类似），将各组件分别启动，�
 
 通过以下简单的两步来完成集群部署（须按步骤进行）
 
+0. `./run.sh init kube_env`
 1. 首先运行 `./run.sh init_k8s_static_pod` 命令初始化 K8S 基础环境，包括 内核参数调整、 旧版本 Docker 删除、新版本 Docker 安装等
 2. 运行 `./run.sh kstart kubelet_service_unit_init` 命令来初始化并启动 kubelet 服务，这个命令只需要执行一次，之后应该使用 systemd 来管理 kubelet 进程
+3. 运行 `./run.sh addons all` 安装相关组件（"kube_proxy"、"calico"、"coredns"、"dashboard"）
+4. 按需部署 metrics-server 使用 kubectl top 命令（`kubectl apply -f ./addons/metrics-server.yaml`）
 
 注释：
 

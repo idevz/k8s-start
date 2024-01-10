@@ -27,8 +27,10 @@ function init::sysctl() {
     # 禁用selinux 让容器可以访问主机文件系统，比如：Pod 网络设置就需要此特性
     # 这个设置必须保持直到 kubelet 支持 SELinux
     # 永久关闭 修改/etc/sysconfig/selinux文件设置
-    sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
+    # sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
     sudo setenforce 0
+    sudo sed -i 's/SELINUX=enforcing/SELINUX=permissive/' /etc/sysconfig/selinux
+
 
     # 临时关闭swap
     # 永久关闭 注释/etc/fstab文件里swap相关的行
@@ -61,8 +63,8 @@ vm.swappiness=0
 SYSCTL
     )
     h::sudo_write "${sysctl_conf}" "/etc/sysctl.d/k8s.conf"
-    sudo sysctl --system
     sudo modprobe br_netfilter
+    sudo sysctl --system
 
     # cat /sys/class/dmi/id/product_uuid
     # 如果需要部署多个节点则需要:
@@ -218,10 +220,10 @@ function init::kube_manifests() {
 
 function init::all() {
     init::sysctl
-    if [ $(uname -a | grep -o el8) != 'el8' ]; then
-        init::clean_old_docker
-        init::install_docker
-    fi
+    # if [ $(uname -a | grep -o el8) != 'el8' ]; then
+    #     init::clean_old_docker
+    #     init::install_docker
+    # fi
     init::kube_env
     init::kube_manifests
 }

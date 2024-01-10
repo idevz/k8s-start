@@ -54,6 +54,15 @@ s | start)
 r | restart)
     sudo systemctl restart docker && sudo systemctl restart kubelet
     ;;
+clean)
+    sudo systemctl stop docker kubelet
+    sudo rm -rf /data/etcd
+    sudo rm -rf /etc/cni/
+    sudo rm -rf /etc/kubernetes/
+    [ -f ~/.kube/config ] && rm ~/.kube/config
+    sudo systemctl start docker kubelet
+    # 待重启完成后，运行 ./run.sh addons all
+    ;;
 *)
     echo "
 Usage:

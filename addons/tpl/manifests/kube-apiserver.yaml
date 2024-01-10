@@ -13,7 +13,7 @@ spec:
     - /kube-apiserver
     - --v=4
     # - --profiling ## default is true
-    - --insecure-port=0
+    - --insecure-port=8080
     - --proxy-client-cert-file=/etc/kubernetes/pki/kubernetes.pem
     - --proxy-client-key-file=/etc/kubernetes/pki/kubernetes-key.pem
     - --logtostderr=true
